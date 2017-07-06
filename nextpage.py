@@ -29,8 +29,7 @@ print (nowWeb)
 def getSearchPages(searchUrl):   
  page_html = urlopen("http://www.cna.com.tw"+searchUrl)
  page_bsObj = BeautifulSoup(page_html,'lxml')
- #print(page_bsObj)
- return page_bsObj.find("div", {"class":"pagination"},"ul").findAll("a",href=re.compile("^(/search/)(.)*$"))
+ return page_bsObj.find("div", {"class":"pagination"},"ul").findAll("a",href=re.compile("^(http://www.cna.com.tw/search/)(.)*$"))
 
 
 
@@ -38,13 +37,15 @@ def getLinks(articleUrl):
  html = urlopen("http://www.cna.com.tw"+articleUrl)
  bsObj = BeautifulSoup(html,'lxml')
  print("---------------------------------")
+ #print(bsObj)
  return bsObj.find("div", {"class":"search_result_list"},"ul").findAll("a",href=re.compile("^(/news/)((?!:).)*$"))
   
 searchlinks = getSearchPages(nowWeb)
+print("search links")
 print(searchlinks)
 pages = set()
 pages.add(nowWeb) 
-searchIdx=0
+searchIdx=1
 for searchIdx in range(1,len(searchlinks)-1,1):
 #while len(links) > 0:
  global pages
@@ -72,14 +73,9 @@ for searchIdx in range(1,len(searchlinks)-1,1):
  print(newSearchPage)
  pages.add(newSearchPage)
  
- newSearchPage_html = urlopen("http://www.cna.com.tw"+newSearchPage)
+ newSearchPage_html = urlopen(newSearchPage)
  newSearchPage_Soup = BeautifulSoup(newSearchPage_html,'lxml')
  nowWeb = newSearchPage
  
  
- #print(links)
-
-
-
-
-
+#print(links)

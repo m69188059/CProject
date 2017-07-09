@@ -32,6 +32,7 @@ while True:
             page_1 =  _ptool.get_web(post['link'])
             html_1 = _ptool.get_doc(page_1)
             _ptool.get_in_article(html_1)
+            print(post['link'])
     except TypeError as e:
         pass
    

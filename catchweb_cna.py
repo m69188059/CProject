@@ -15,9 +15,6 @@ import datetime
 import re
 import sys
 
-#GET<Response [200]>
-res = requests.get("http://www.cna.com.tw/search/hysearchws.aspx?q=%E5%90%8C%E5%A9%9A")
-
 #initial set
 #key = "%E5%90%8C%E5%A9%9A"
 key = sys.argv[1]
@@ -64,7 +61,11 @@ while True:
  
   newpage = urlopen("http://www.cna.com.tw"+newArticle)
   newpageSoup = BeautifulSoup(newpage,'lxml')
-  print(newpageSoup.h1.text) 
+  print(newpageSoup.h1.text)
+  timetemp = newpageSoup.find(attrs = {'class':"update_times"})
+  timetemp = newpageSoup.find(attrs = {'class':'blue'}) 
+  print(timetemp.text)
+  
   i=0
   for i in range(3,7,1):
    context = newpageSoup.select('p')[i].text

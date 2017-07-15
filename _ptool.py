@@ -1,67 +1,80 @@
 import requests
-import re
 from bs4 import BeautifulSoup
 
 def get_web(url):
-    resp = requests.get( url=url, cookies={'over18':'1'})      #for 18 verification
+    resp = requests.get( url=url, cookies={'over18':'1'}) 
     if resp.status_code !=200:
        print('Invalid url:',resp.url)
        return None
     else:
        return resp.text
 
-def get_back(html):
-    doc = BeautifulSoup(html,'html.parser')
-    divs = doc.find_all('div','btn-group btn-group-paging')
-    
-    ptt_url = 'https://www.ptt.cc/'
-    done = '0'
-    for d in divs:
-        if d.find('a','btn wide','1','‹ 上頁'):
-           ptt_url= ptt_url+ d.find('a','btn wide',1,'‹ 上頁')['href']
-        else:
-           done = '1'
-           break
-    
-    if done is '1':
-         return done
-    return ptt_url
+def get_doc(page):
+    page = BeautifulSoup(page,'html.parser')
+    return page
 
-def get_articles(html,search_key):
-    doc = BeautifulSoup(html,'html.parser')
-    divs = doc.find_all('div','r-ent')
-    
+def get_back(doc):
+    divs = doc.find('div','btn-group-paging').find_all('a','btn')
+    link = divs[1].get('href')
+    if link is None:
+       return '1'
+    else:
+       ptt_url = 'https://www.ptt.cc/' + link
+       return ptt_url
+
+def get_articles(search_key,doc):
+    divs = doc.find_all('div','r-ent')   
     ptt = 'https://www.ptt.cc/'   
     articles = []                       
-    pattern = search_key + '+'                       #set keyword
-
+    
     for d in divs:
-           push = 0                             
-           
-           #=== get_push_count ===
-
-
+           push = ''   
            if d.find('div','nrec').string:
-              try:
-                  push = int(d.find('div','nrec').string)
-              except ValueError:
-                  pass
+              push = d.find('div','nrec').string
 
-          #=== get_articles ===
-           if d.find('a'):                              #article exists
-              title = d.find('a').string
-              
-              if re.findall(pattern,title):             #article matches keyword
-                 href = d.find('a')['href']
-                 articles.append({
-                    'title':title,
-                    'link':ptt+href,
-                    'push':push })
+           if d.find('a'):                         #article exists
+              title = d.find('a').string                  
+            
+              try:
+                title.find(search_key)                
+              except AttributeError as e:
+                return None
+              else:
+                if title.find(search_key) is not -1:
+                   href = d.find('a')['href']
+                   articles.append({
+                       'title':title,
+                       'link':ptt+href,
+                       'push':push })
+             
     return articles
 
-def get_in_article(html):
-    soup = BeautifulSoup(html,'html.parser')
-    divs = soup.find_all('div','article-metaline')
-    #put time parameter
-    #for d in divs:
-        #print(d.find('span','article-meta-value',3))
+def get_in_article(doc):
+    spans = doc.find_all('span','article-meta-value')  
+   
+    try:
+       print(spans[3].string) #get article time
+    except IndexError as e:
+       pass
+
+    content = doc.find('div',id="main-container").getText()
+    del_index=content.find('--')
+    content = content [1:del_index]
+    del_index=content.find('\n')
+    content = content[del_index:]
+    return content
+
+def get_push(doc):
+    spans = doc.find_all('span','push-tag')
+    push = [0,0,0]
+     
+    for s in spans:
+        tem = s.string
+        if tem.find('推') is not -1:
+           push[0]=push[0]+1
+        if tem.find('→ ') is not -1:
+           push[1]=push[1]+1
+        if tem.find('噓') is not -1:
+           push[2]=push[2]+1
+    
+    return push

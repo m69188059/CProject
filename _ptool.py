@@ -51,9 +51,9 @@ def get_articles(search_key,doc):
 
 def get_in_article(doc):
     spans = doc.find_all('span','article-meta-value')  
-   
+    timestr = "\nTime: "
     try:
-       print(spans[3].string) #get article time
+       timestr = timestr +spans[3].string + '\n\n' #get article time
     except IndexError as e:
        pass
 
@@ -62,6 +62,7 @@ def get_in_article(doc):
     content = content [1:del_index]
     del_index=content.find('\n')
     content = content[del_index:]
+    content = content + timestr
     return content
 
 def get_push(doc):

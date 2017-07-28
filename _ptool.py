@@ -19,12 +19,12 @@ def get_back(doc):
     if link is None:
        return '1'
     else:
-       ptt_url = 'https://www.ptt.cc/' + link
+       ptt_url = 'https://www.ptt.cc' + link
        return ptt_url
 
 def get_articles(search_key,doc):
     divs = doc.find_all('div','r-ent')   
-    ptt = 'https://www.ptt.cc/'   
+    ptt = 'https://www.ptt.cc'   
     articles = []                       
     
     for d in divs:
@@ -73,9 +73,19 @@ def get_push(doc):
         tem = s.string
         if tem.find('推') is not -1:
            push[0]=push[0]+1
-        if tem.find('→ ') is not -1:
+        elif tem.find('→ ') is not -1:
            push[1]=push[1]+1
-        if tem.find('噓') is not -1:
+        elif tem.find('噓') is not -1:
            push[2]=push[2]+1
     
     return push
+
+def get_index(doc):
+    divs = doc.find('div','btn-group-paging').find_all('a','btn')
+    link = divs[1].get('href')
+     
+    end_index = link.find('.html') 
+
+    num = int(link[20:end_index])
+    return num
+

@@ -69,14 +69,25 @@ while True:
   newpageSoup = BeautifulSoup(newpage,'lxml')
   print(newpageSoup.h1.text) 
   context = newpageSoup.h1.text 
+  
+  timetemp = newpageSoup.find(attrs = {'class':"update_times"})
+  timetemp = newpageSoup.find(attrs = {'class':'blue'}) 
+  
   i=0
   filelink = newArticle.replace('/','_')
-  filename = filekey+filelink+'.txt'
+  filename = 'http:__www.cna.com.tw'+filelink+'.txt'
   fileloc = "/home/thc103u/project/txt/"+filename
+  
   f = open(fileloc, 'w', encoding = 'UTF-8') 
   f.write(context+'\n')
+  
+  context = timetemp.text
+  delete = re.search("(最新更新：)",context)
+  context = context[delete.end():] 
+  f.write(context+'\n')
+  
   for i in range(3,20,1):
-   context = newpageSoup.select('p')[i].text
+   context = newpageSoup.select('p')[i].text    
    if(context == endpatt1):
     i=21
     break
@@ -121,3 +132,4 @@ while True:
 
  
 #print(links)
+

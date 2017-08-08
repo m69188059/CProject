@@ -28,10 +28,6 @@ def get_articles(search_key,doc):
     articles = []                       
     
     for d in divs:
-           push = ''   
-           if d.find('div','nrec').string:
-              push = d.find('div','nrec').string
-
            if d.find('a'):                         #article exists
               title = d.find('a').string                  
             
@@ -42,10 +38,12 @@ def get_articles(search_key,doc):
               else:
                 if title.find(search_key) is not -1:
                    href = d.find('a')['href']
+                   author = d.find('div','author').string
+                 
                    articles.append({
                        'title':title,
                        'link':ptt+href,
-                       'push':push })
+                       'author':author })
              
     return articles
 

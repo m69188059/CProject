@@ -1,8 +1,6 @@
 import _ptool
 import sys
-import time
-import random
-from io import open
+import os
 from threading import Thread, Lock
 
 url='https://www.ptt.cc/bbs/Gossiping/index.html'
@@ -14,7 +12,7 @@ data_n = 1
 print('home page is :%d'%(num))
 print('====================================================================')
 
-def mul_ptt(tid,keyword,lock):
+def mul_ptt(tid,keyword,lock,dir_path):
     while True:
 
       with lock:
@@ -38,7 +36,7 @@ def mul_ptt(tid,keyword,lock):
                     article_push = []
                     
                     global data_n                                     
-                    file_name = str(data_n)+ "_"+ keyword  + '_' + str(tid)+ ".txt"           #global
+                    file_name = dir_path +"/" + str(data_n)+ "_"+ keyword + ".txt"           #global
                     data_n = data_n + 1
                    
                    
@@ -58,8 +56,9 @@ def mul_ptt(tid,keyword,lock):
                          fin.write(context)
                          fin.write("Link:")
                          fin.write(match_article['link'])
+                         fin.write("\n\nAuthor: %s"%match_article['author'])
 
-                         fin.write("\n推文數：")
+                         fin.write("\n\n推文數：")
                          fin.write(str(article_push[0]))
                          fin.write("\n回文數：")
                          fin.write(str(article_push[1]))
@@ -78,9 +77,18 @@ def mul_ptt(tid,keyword,lock):
        
 
 
-
+tnum = int(sys.argv[2])
 kword = sys.argv[1]
+dir_name = kword
 
-for i in range(10):
-    t = Thread(target=mul_ptt, args=(i,kword,Lock()))
+
+if tnum is 0:
+   tnum = 10 #defult thread_num
+
+if not os.path.exists(dir_name):
+   os.makedirs(dir_name)
+
+
+for i in range(tnum):
+    t = Thread(target=mul_ptt, args=(i,kword,Lock(),dir_name))
     t.start()

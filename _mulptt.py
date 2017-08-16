@@ -36,7 +36,7 @@ def mul_ptt(tid,keyword,lock,dir_path):
                     article_push = []
                     
                     global data_n                                     
-                    file_name = dir_path +"/" + str(data_n)+ "_"+ keyword + ".txt"           #global
+                    file_name = dir_path +"/" + str(data_n)+ "_"+ keyword + "_"+ str(tid) + ".txt"           #global
                     data_n = data_n + 1
                    
                    
@@ -44,17 +44,26 @@ def mul_ptt(tid,keyword,lock,dir_path):
                    
                     with open(file_name,mode = 'w',encoding='utf8') as fin:
                       
-                      
-                        # print('thread id %d is writing data in page %d' %(tid,page_num))
-
                          fin.write(match_article['title'])
+                        
                          article_page = _ptool.get_web(match_article['link'])
                          article_html = _ptool.get_doc(article_page)
+                        
                          article_push = _ptool.get_push(article_html)
-                         context = _ptool.get_in_article(article_html)
- 
-                         fin.write(context)
-                         fin.write("Link:")
+                   
+                         _dict = _ptool.get_in_article(article_html)
+                        
+                         
+                         _detail =  _ptool.get_detail(match_article['title'],_dict['time'])
+
+                         fin.write(_dict['text'])
+                         fin.write("\n\n")
+                        # fin.write(_dict['time'])
+                        # fin.write("\n\n")
+
+                         fin.write(_dict['retext'])
+                         
+                         fin.write("\nLink:")
                          fin.write(match_article['link'])
                          fin.write("\n\nAuthor: %s"%match_article['author'])
 
@@ -64,6 +73,21 @@ def mul_ptt(tid,keyword,lock,dir_path):
                          fin.write(str(article_push[1]))
                          fin.write("\n噓文數：")
                          fin.write(str(article_push[2]))
+
+                         fin.write("\n")
+                         fin.write(_detail['Week'])
+                         fin.write("\n")
+                         fin.write(_detail['Month'])
+                         fin.write("\n")
+                         fin.write(_detail['Date'])
+                         fin.write("\n")
+                         fin.write(_detail['Time'])
+                         fin.write("\n")
+                         fin.write(_detail['Year'])
+                         fin.write("\n")
+                         fin.write(_detail['Isre'])
+                         fin.write("\n")
+                         fin.write(_detail['Kind'])
                          fin.close()
                          print('thread id %d closed status :'%(tid))
                          print(fin.closed)  #check_file_closed

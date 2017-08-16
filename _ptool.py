@@ -48,20 +48,35 @@ def get_articles(search_key,doc):
     return articles
 
 def get_in_article(doc):
+
+    _dict = {}
+
     spans = doc.find_all('span','article-meta-value')  
-    timestr = "\nTime: "
+    timestr = ""
     try:
-       timestr = timestr +spans[3].string + '\n\n' #get article time
+       timestr = timestr +spans[3].string +'\n'
     except IndexError as e:
        pass
 
     content = doc.find('div',id="main-container").getText()
-    del_index=content.find('--')
+
+    del_index=content.find('※ 發')
+   # content = content [1:del_index]
+   # del_index=content.find('\n')
+   # content = content[del_index:]
+
+
+    end_index = content.find('本網站已依台灣網站內容')
+    retext = content [del_index:end_index-1]
+
+
     content = content [1:del_index]
     del_index=content.find('\n')
-    content = content[del_index:]
-    content = content + timestr
-    return content
+    content = content[del_index:] 
+
+    _dict= {'time':timestr,'text':content,'retext':retext}
+
+    return _dict
 
 def get_push(doc):
     spans = doc.find_all('span','push-tag')
@@ -75,7 +90,7 @@ def get_push(doc):
            push[1]=push[1]+1
         elif tem.find('噓') is not -1:
            push[2]=push[2]+1
-    
+     
     return push
 
 def get_index(doc):
@@ -87,3 +102,41 @@ def get_index(doc):
     num = int(link[20:end_index])
     return num
 
+def get_detail(title,timestr):
+    data = {}
+
+    time = timestr.split()
+ 
+    isRe = 'False'
+    if title[0]=='R'and title[1]=='e':
+       isRe = 'True'
+         
+    kind = ''
+    _get=0   
+    if title.find('[') is not -1:   
+       _get = title.find('[')+1
+       try:
+          kind = title[_get:_get+2]
+       except IndexError as e:
+          pass
+    
+    try:
+      data = {
+        'Week':time[0],
+        'Month':time[1],
+        'Date':time[2],
+        'Time':time[3],
+        'Year':time[4],
+        'Isre':isRe,
+        'Kind':kind}
+    except IndexError as e:
+      data = {
+        'Week':"Error",
+        'Month':"Error",
+        'Date':"Error",
+        'Time':"Error",
+        'Year':"Error",
+        'Isre':isRe,
+        'Kind':kind}
+
+    return data

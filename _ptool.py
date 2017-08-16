@@ -119,7 +119,6 @@ def get_detail(title,timestr):
           kind = title[_get:_get+2]
        except IndexError as e:
           pass
-    
     try:
       data = {
         'Week':time[0],

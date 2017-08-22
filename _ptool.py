@@ -7,6 +7,7 @@ def get_web(url):
        print('Invalid url:',resp.url)
        return None
     else:
+      # print (resp.text)
        return resp.text
 
 def get_doc(page):
@@ -61,20 +62,11 @@ def get_in_article(doc):
     content = doc.find('div',id="main-container").getText()
 
     del_index=content.find('※ 發')
-   # content = content [1:del_index]
-   # del_index=content.find('\n')
-   # content = content[del_index:]
-
-
-    end_index = content.find('本網站已依台灣網站內容')
-    retext = content [del_index:end_index-1]
-
-
     content = content [1:del_index]
     del_index=content.find('\n')
-    content = content[del_index:] 
+    content = content[del_index:]
 
-    _dict= {'time':timestr,'text':content,'retext':retext}
+    _dict= {'time':timestr,'text':content}
 
     return _dict
 
@@ -92,14 +84,54 @@ def get_push(doc):
            push[2]=push[2]+1
      
     return push
+def get_retext(doc):
+    divs = doc.find_all('div','push')
+    retext = []
+
+    for d in divs:
+        
+        try:
+           push = d.find('span','push-tag').string
+        except AttributeError as e:
+           push = ''
+        
+        try:
+           userid = d.find('span','push-userid').string
+        except AttributeError as e:
+           userid =''
+        
+        try:
+           content = d.find('span','push-content').string
+
+           if content is None:
+              content = content.find('a').string
+        except AttributeError as e:
+           content = ''
+        
+        try:
+           retime = d.find('span','push-ipdatetime').string
+        except AttributeError as e:
+           retime = ''
+        
+        retext.append({
+        'Pushtag':push,
+        'Userid':userid,
+        'Content':content,
+        'Retime':retime })
+     
+    return retext
+       
+
 
 def get_index(doc):
     divs = doc.find('div','btn-group-paging').find_all('a','btn')
     link = divs[1].get('href')
-     
-    end_index = link.find('.html') 
+    
+    i_index = link.find('index') 
+    e_index = link.find('.html')
 
-    num = int(link[20:end_index])
+    num = int(link[i_index+5:e_index])
+    
     return num
 
 def get_detail(title,timestr):

@@ -4,7 +4,10 @@ import os
 from threading import Thread, Lock
 from pymongo import MongoClient
 
-url='https://www.ptt.cc/bbs/Gossiping/index.html'
+
+ptt_name = sys.argv[3]
+
+url = 'https://www.ptt.cc/bbs/' + ptt_name + '/index.html'
 pagefornum = _ptool.get_web(url)
 docfornum = _ptool.get_doc(pagefornum)
 
@@ -13,10 +16,11 @@ data_n = 1
 
 client = MongoClient()
 db = client.ptt
-postin = db.gossiping
+postin = db[ptt_name]
 
 
 print('home page is :%d'%(num))
+print('home url is : %s'%(url))
 print('====================================================================')
 
 def mul_ptt(tid,keyword,lock):
@@ -25,8 +29,9 @@ def mul_ptt(tid,keyword,lock):
       with lock:
            global num
            if num>0:              
-     
-              ptt_url = 'https://www.ptt.cc/bbs/Gossiping/index' + str(num) + '.html'          
+              global ptt_name
+              ptt_url = 'https://www.ptt.cc/bbs/' + sys.argv[3] + '/index' + str(num) + '.html'
+          
               page_num = num
               num = num - 1           
 
@@ -78,8 +83,7 @@ def mul_ptt(tid,keyword,lock):
                       "Fuck":article_push[2],
 
                       "Text":_dict['text'],
-                      "Retext":_dict['retext'],
-
+                     
                       "Postive":0,
                       "Negative":0,
                       "Score":0

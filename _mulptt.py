@@ -3,13 +3,16 @@ import sys
 import os
 from threading import Thread, Lock
 
-url='https://www.ptt.cc/bbs/Gossiping/index.html'
+ptt_name = sys.argv[3]
+
+url = 'https://www.ptt.cc/bbs/' + ptt_name + '/index.html'
 pagefornum = _ptool.get_web(url)
 docfornum = _ptool.get_doc(pagefornum)
 
 num = _ptool.get_index(docfornum) + 1
 data_n = 1
 print('home page is :%d'%(num))
+print('home url is : %s'%(url))
 print('====================================================================')
 
 def mul_ptt(tid,keyword,lock,dir_path):
@@ -18,8 +21,8 @@ def mul_ptt(tid,keyword,lock,dir_path):
       with lock:
            global num
            if num>0:              
-     
-              ptt_url = 'https://www.ptt.cc/bbs/Gossiping/index' + str(num) + '.html'          
+              global ptt_name
+              ptt_url = 'https://www.ptt.cc/bbs/' + sys.argv[3] + '/index' + str(num) + '.html'          
               page_num = num
               num = num - 1           
 
@@ -50,7 +53,8 @@ def mul_ptt(tid,keyword,lock,dir_path):
                          article_html = _ptool.get_doc(article_page)
                         
                          article_push = _ptool.get_push(article_html)
-                   
+                         retext = _ptool.get_retext(article_html)
+
                          _dict = _ptool.get_in_article(article_html)
                         
                          
@@ -60,9 +64,7 @@ def mul_ptt(tid,keyword,lock,dir_path):
                          fin.write("\n\n")
                         # fin.write(_dict['time'])
                         # fin.write("\n\n")
-
-                         fin.write(_dict['retext'])
-                         
+                                                 
                          fin.write("\nLink:")
                          fin.write(match_article['link'])
                          fin.write("\n\nAuthor: %s"%match_article['author'])
@@ -88,6 +90,21 @@ def mul_ptt(tid,keyword,lock,dir_path):
                          fin.write(_detail['Isre'])
                          fin.write("\n")
                          fin.write(_detail['Kind'])
+
+
+
+
+
+                         for r in retext:
+                             fin.write("\n")
+                             fin.write(r['Pushtag'])
+                             fin.write(' ')
+                             fin.write(r['Userid'])
+                             fin.write(' ')
+                             fin.write(r['Content'])
+                             fin.write(' ')
+                             fin.write(r['Retime'])
+
                          fin.close()
                          print('thread id %d closed status :'%(tid))
                          print(fin.closed)  #check_file_closed

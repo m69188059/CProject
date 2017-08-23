@@ -62,8 +62,7 @@ def mul_ptt(tid,keyword,lock,dir_path):
 
                          fin.write(_dict['text'])
                          fin.write("\n\n")
-                        # fin.write(_dict['time'])
-                        # fin.write("\n\n")
+                        
                                                  
                          fin.write("\nLink:")
                          fin.write(match_article['link'])
@@ -92,19 +91,7 @@ def mul_ptt(tid,keyword,lock,dir_path):
                          fin.write(_detail['Kind'])
 
 
-
-
-
-                         for r in retext:
-                             fin.write("\n")
-                             fin.write(r['Pushtag'])
-                             fin.write(' ')
-                             fin.write(r['Userid'])
-                             fin.write(' ')
-                             fin.write(r['Content'])
-                             fin.write(' ')
-                             fin.write(r['Retime'])
-
+                         fin.write(retext)
                          fin.close()
                          print('thread id %d closed status :'%(tid))
                          print(fin.closed)  #check_file_closed
@@ -120,7 +107,7 @@ def mul_ptt(tid,keyword,lock,dir_path):
 
 tnum = int(sys.argv[2])
 kword = sys.argv[1]
-dir_name = kword
+dir_name = sys.argv[3]+ '_' +kword
 
 
 if tnum is 0:

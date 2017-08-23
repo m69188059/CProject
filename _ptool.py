@@ -86,19 +86,19 @@ def get_push(doc):
     return push
 def get_retext(doc):
     divs = doc.find_all('div','push')
-    retext = []
+    re = '\n'
 
     for d in divs:
         
         try:
            push = d.find('span','push-tag').string
         except AttributeError as e:
-           push = ''
+           push = '='
         
         try:
            userid = d.find('span','push-userid').string
         except AttributeError as e:
-           userid =''
+           userid ='=userid'
         
         try:
            content = d.find('span','push-content').string
@@ -106,20 +106,17 @@ def get_retext(doc):
            if content is None:
               content = content.find('a').string
         except AttributeError as e:
-           content = ''
+           content = '====URL is here!!!!===='
         
         try:
            retime = d.find('span','push-ipdatetime').string
         except AttributeError as e:
-           retime = ''
+           retime = '==='
         
-        retext.append({
-        'Pushtag':push,
-        'Userid':userid,
-        'Content':content,
-        'Retime':retime })
+        re = re + push + ' ' + userid + ' ' + content + ' ' + retime + '\n'
+        
      
-    return retext
+    return re
        
 
 

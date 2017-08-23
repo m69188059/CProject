@@ -56,7 +56,7 @@ def mul_ptt(tid,keyword,lock):
                     _dict = _ptool.get_in_article(article_html)
                     _detail = _ptool.get_detail(match_article['title'],_dict['time'])
  
-
+                    retext = _ptool.get_retext(article_html)
 
                
                     post = {
@@ -83,7 +83,8 @@ def mul_ptt(tid,keyword,lock):
                       "Fuck":article_push[2],
 
                       "Text":_dict['text'],
-                     
+                      "Retext":retext,
+
                       "Postive":0,
                       "Negative":0,
                       "Score":0

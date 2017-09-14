@@ -30,8 +30,10 @@ def get_articles(search_key,doc):
     
     for d in divs:
            if d.find('a'):                         #article exists
-              title = d.find('a').string                  
-            
+              title = d.find('a').string
+              
+           if search_key != '-all':
+              
               try:
                 title.find(search_key)                
               except AttributeError as e:
@@ -45,6 +47,14 @@ def get_articles(search_key,doc):
                        'title':title,
                        'link':ptt+href,
                        'author':author })
+           else:
+               
+               href = d.find('a')['href']
+               author = d.find('div','author').string
+               articles.append({
+                  'title':title,
+                  'link':ptt+href,
+                  'author':author })
              
     return articles
 

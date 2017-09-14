@@ -57,11 +57,11 @@ def mul_ptt(tid,keyword,lock):
                     _detail = _ptool.get_detail(match_article['title'],_dict['time'])
  
                     retext = _ptool.get_retext(article_html)
-
+                    
                
                     post = {
                       "Tid":tid,
-                      "_id":data,
+                      
                       "Keyword":keyword,
 
                       "Kind":_detail['Kind'],
@@ -114,4 +114,3 @@ if tnum is 0:
 for i in range(tnum):
     t = Thread(target=mul_ptt, args=(i,kword,Lock()))
     t.start()
-

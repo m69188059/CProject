@@ -33,71 +33,86 @@ def mul_ptt(tid,keyword,lock,dir_path):
               html = _ptool.get_doc(page)
               web = _ptool.get_articles(keyword,html)                                 #find the all articles that match keyword
               
-              
-              try:
-                for match_article in web:
-                    article_push = []
-                    
-                    global data_n                                     
-                    file_name = dir_path +"/" + str(data_n)+ "_"+ keyword + "_"+ str(tid) + ".txt"           #global
-                    data_n = data_n + 1
-                   
-                   
-              
-                   
-                    with open(file_name,mode = 'w',encoding='utf8') as fin:
-                      
-                         fin.write(match_article['title'])
-                        
-                         article_page = _ptool.get_web(match_article['link'])
-                         article_html = _ptool.get_doc(article_page)
-                        
-                         article_push = _ptool.get_push(article_html)
-                         retext = _ptool.get_retext(article_html)
 
-                         _dict = _ptool.get_in_article(article_html)
+              if web is False:
+                 web_error = "WebError_" + str(tid) + ".txt"
+                 print("Error happened at thread id = %s"%str(tid))
+                 with open(web_error,mode = 'a',encoding='utf8') as f:
+                      f.write(ptt_url)
+                      f.write("\n")
+                      f.close()
+
+              else:
+                 try:
+                   for match_article in web:
+                       article_push = []
+                    
+                       global data_n                                     
+                       file_name = dir_path +"/" + str(data_n)+ "_"+ keyword + "_"+ str(tid) + ".txt"           #global
+                       data_n = data_n + 1
+                       file_error = "Error_" + str(tid) + ".txt"
+              
+                   
+                       with open(file_name,mode = 'w',encoding='utf8') as fin:
+                      
+                            fin.write(match_article['title'])
+                        
+                            article_page = _ptool.get_web(match_article['link'])
+                            article_html = _ptool.get_doc(article_page)
+                        
+
+                            if article_html is False:
+                               fin.close()
+                               os.remove(file_name)
+                               print("Thread id = %s delete file : %s"%(str(tid),file_name))
+                               with open(file_error,mode = 'a',encoding='utf8') as f:
+                                   f.write(match_article['link'])
+                                   f.write("\n")
+                                   f.close()
+                               
+
+                            else:
+                               article_push = _ptool.get_push(article_html)
+                               retext = _ptool.get_retext(article_html)
+
+                               _dict = _ptool.get_in_article(article_html)
                         
                          
-                         _detail =  _ptool.get_detail(match_article['title'],_dict['time'])
+                               _detail =  _ptool.get_detail(match_article['title'],_dict['time'])
 
-                         fin.write(_dict['text'])
-                         fin.write("\n\n")
-                        
-                                                 
-                         fin.write("\nLink:")
-                         fin.write(match_article['link'])
-                         fin.write("\n\nAuthor: %s"%match_article['author'])
+                               fin.write(_dict['text'])
+                               fin.write("\n\n")                   
+                               fin.write("\nLink:")
+                               fin.write(match_article['link'])
+                               fin.write("\n\nAuthor: %s"%match_article['author'])
+                               fin.write("\n\n推文數：")
+                               fin.write(str(article_push[0]))
+                               fin.write("\n回文數：")
+                               fin.write(str(article_push[1]))
+                               fin.write("\n噓文數：")
+                               fin.write(str(article_push[2]))
 
-                         fin.write("\n\n推文數：")
-                         fin.write(str(article_push[0]))
-                         fin.write("\n回文數：")
-                         fin.write(str(article_push[1]))
-                         fin.write("\n噓文數：")
-                         fin.write(str(article_push[2]))
+                               fin.write("\n")
+                               fin.write(_detail['Week'])
+                               fin.write("\n")
+                               fin.write(_detail['Month'])
+                               fin.write("\n")
+                               fin.write(_detail['Date'])
+                               fin.write("\n")
+                               fin.write(_detail['Time'])
+                               fin.write("\n")
+                               fin.write(_detail['Year'])
+                               fin.write("\n")
+                               fin.write(_detail['Isre'])
+                               fin.write("\n")
+                               fin.write(_detail['Kind'])
+                               fin.write(retext)
+                               fin.close()
+                               print('thread id %d closed status :'%(tid))
+                               print(fin.closed)  #check_file_closed
 
-                         fin.write("\n")
-                         fin.write(_detail['Week'])
-                         fin.write("\n")
-                         fin.write(_detail['Month'])
-                         fin.write("\n")
-                         fin.write(_detail['Date'])
-                         fin.write("\n")
-                         fin.write(_detail['Time'])
-                         fin.write("\n")
-                         fin.write(_detail['Year'])
-                         fin.write("\n")
-                         fin.write(_detail['Isre'])
-                         fin.write("\n")
-                         fin.write(_detail['Kind'])
-
-
-                         fin.write(retext)
-                         fin.close()
-                         print('thread id %d closed status :'%(tid))
-                         print(fin.closed)  #check_file_closed
-
-              except TypeError as e:
-                   pass
+                 except TypeError as e:
+                      pass
                         
            elif num==0:
                 print("done")

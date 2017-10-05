@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 def get_web(url):
-    resp = requests.get( url=url, cookies={'over18':'1'}) 
+    resp = requests.get( url=url, verify = True ,cookies={'over18':'1'}) 
     if resp.status_code !=200:
        print('Invalid url:',resp.url)
        return None
@@ -11,8 +11,13 @@ def get_web(url):
        return resp.text
 
 def get_doc(page):
-    page = BeautifulSoup(page,'html.parser')
-    return page
+    try:
+        page = BeautifulSoup(page,'html.parser')
+        return page
+    except TypeError as e:
+        print("TyepError, getting error link")
+        return False
+
 
 def get_back(doc):
     divs = doc.find('div','btn-group-paging').find_all('a','btn')
@@ -24,7 +29,13 @@ def get_back(doc):
        return ptt_url
 
 def get_articles(search_key,doc):
-    divs = doc.find_all('div','r-ent')   
+    try:
+           divs = doc.find_all('div','r-ent')
+    except AttributeError as e:
+           print("AttributeError, getting error link")
+           return False 
+
+  
     ptt = 'https://www.ptt.cc'   
     articles = []                       
     
@@ -32,29 +43,28 @@ def get_articles(search_key,doc):
            if d.find('a'):                         #article exists
               title = d.find('a').string
               
-           if search_key != '-all':
+              if search_key != '-all':
               
-              try:
-                title.find(search_key)                
-              except AttributeError as e:
-                return None
-              else:
-                if title.find(search_key) is not -1:
-                   href = d.find('a')['href']
-                   author = d.find('div','author').string
+                 try:
+                   title.find(search_key)                
+                 except AttributeError as e:
+                   return None
+                 else:
+                   if title.find(search_key) is not -1:
+                      href = d.find('a')['href']
+                      author = d.find('div','author').string
                  
-                   articles.append({
-                       'title':title,
-                       'link':ptt+href,
-                       'author':author })
-           else:
-               
-               href = d.find('a')['href']
-               author = d.find('div','author').string
-               articles.append({
-                  'title':title,
-                  'link':ptt+href,
-                  'author':author })
+                      articles.append({
+                          'title':title,
+                          'link':ptt+href,
+                          'author':author })
+              else:               
+                  href = d.find('a')['href']
+                  author = d.find('div','author').string
+                  articles.append({
+                     'title':title,
+                     'link':ptt+href,
+                     'author':author })
              
     return articles
 

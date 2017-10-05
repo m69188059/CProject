@@ -42,60 +42,75 @@ def mul_ptt(tid,keyword,lock):
               html = _ptool.get_doc(page)
               web = _ptool.get_articles(keyword,html)                                 #find the all articles that match keyword
               
-              
-              try:
-                for match_article in web:                  
-                    global data_n
-                    data = data_n                                     
-                    data_n = data_n + 1
+              if web is False:
+                 web_error = "WebError_" + str(tid) + ".txt"
+                 with open(web_error,mode = 'a',encoding='utf8') as f:
+                      f.write(ptt_url)
+                      f.write("\n")
+                      f.close()            
+              else:
+                 try:
+                   for match_article in web:                  
+                       global data_n
+                       data = data_n                                     
+                       data_n = data_n + 1
                     
-                    article_page = _ptool.get_web(match_article['link'])
-                    article_html = _ptool.get_doc(article_page)
-                    article_push = _ptool.get_push(article_html)
+                       article_page = _ptool.get_web(match_article['link'])
+                       article_html = _ptool.get_doc(article_page)
 
-                    _dict = _ptool.get_in_article(article_html)
-                    _detail = _ptool.get_detail(match_article['title'],_dict['time'])
+                       if article_html is False:
+                          file_error="Error_"+str(tid)+".txt"
+                          with open(file_error,mode='a',encoding='utf8') as f:
+                              f.write(match_article['link'])
+                              f.write("\n")
+                              f.close()
+
+
+                       else:
+                          article_push = _ptool.get_push(article_html)
+
+                          _dict = _ptool.get_in_article(article_html)
+                          _detail = _ptool.get_detail(match_article['title'],_dict['time'])
  
-                    retext = _ptool.get_retext(article_html)
+                          retext = _ptool.get_retext(article_html)
                     
                
-                    post = {
-                      "Tid":tid,
+                          post = {
+                            "Tid":tid,
                       
-                      "Keyword":keyword,
+                            "Keyword":keyword,
 
-                      "Kind":_detail['Kind'],
-                      "Isre":_detail['Isre'],
-                      "Title":match_article['title'],
-                      "Author":match_article['author'],
+                            "Kind":_detail['Kind'],
+                            "Isre":_detail['Isre'],
+                            "Title":match_article['title'],
+                            "Author":match_article['author'],
 
-                      "Week":_detail['Week'],
-                      "Month":_detail['Month'],
-                      "Date":_detail['Date'],
-                      "Time":_detail['Time'],
-                      "Year":_detail['Year'],
-
+                            "Week":_detail['Week'],
+                            "Month":_detail['Month'],
+                            "Date":_detail['Date'],
+                            "Time":_detail['Time'],
+                            "Year":_detail['Year'],
                       
-                      "Link":match_article['link'],
+                            "Link":match_article['link'],
                       
-                      "Push":article_push[0],
-                      "Re":article_push[1],
-                      "Fuck":article_push[2],
+                            "Push":article_push[0],
+                            "Re":article_push[1],
+                            "Fuck":article_push[2],
 
-                      "Text":_dict['text'],
-                      "Retext":retext,
+                            "Text":_dict['text'],
+                            "Retext":retext,
 
-                      "Postive":0,
-                      "Negative":0,
-                      "Score":0
-                    }
+                            "Postive":0,
+                            "Negative":0,
+                            "Score":0
+                          }
                     
-                    global postin
-                    postin.insert_one(post)
-                   # print("Thread %d post in database"%tid)
+                          global postin
+                          postin.insert_one(post)
+                          print("Thread %d post in database"%tid)
 
-              except TypeError as e:
-                   pass
+                 except TypeError as e:
+                      pass
                         
            elif num==0:
                 print("Thread %d done"%tid)

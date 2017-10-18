@@ -5,14 +5,10 @@ from threading import Thread, Lock
 from pymongo import MongoClient
 
 
-ptt_name = sys.argv[3]
+ptt_name = sys.argv[2]
 
 url = 'https://www.ptt.cc/bbs/' + ptt_name + '/index.html'
-pagefornum = _ptool.get_web(url)
-docfornum = _ptool.get_doc(pagefornum)
-
-num = _ptool.get_index(docfornum) + 1
-data_n = 1
+num = int(sys.argv[3])
 
 client = MongoClient()
 db = client.ptt
@@ -23,14 +19,14 @@ print('home page is :%d'%(num))
 print('home url is : %s'%(url))
 print('====================================================================')
 
-def mul_ptt(tid,keyword,lock):
+def mul_ptt(tid,lock,end_num):
     while True:
 
       with lock:
            global num
-           if num>0:              
+           if num>end_num:              
               global ptt_name
-              ptt_url = 'https://www.ptt.cc/bbs/' + sys.argv[3] + '/index' + str(num) + '.html'
+              ptt_url = 'https://www.ptt.cc/bbs/' + sys.argv[2] + '/index' + str(num) + '.html'
           
               page_num = num
               num = num - 1           
@@ -40,7 +36,7 @@ def mul_ptt(tid,keyword,lock):
               web = []            
               page = _ptool.get_web(ptt_url)
               html = _ptool.get_doc(page)
-              web = _ptool.get_articles(keyword,html)                                 #find the all articles that match keyword
+              web = _ptool.get_articles(html)                                 #find the all articles that match keyword
               
               if web is False:
                  web_error = "WebError_" + str(tid) + ".txt"
@@ -51,10 +47,7 @@ def mul_ptt(tid,keyword,lock):
               else:
                  try:
                    for match_article in web:                  
-                       global data_n
-                       data = data_n                                     
-                       data_n = data_n + 1
-                    
+				   
                        article_page = _ptool.get_web(match_article['link'])
                        article_html = _ptool.get_doc(article_page)
 
@@ -76,23 +69,17 @@ def mul_ptt(tid,keyword,lock):
                     
                
                           post = {
-                            "Tid":tid,
-                      
-                            "Keyword":keyword,
 
                             "Kind":_detail['Kind'],
                             "Isre":_detail['Isre'],
                             "Title":match_article['title'],
                             "Author":match_article['author'],
 
-                            "Week":_detail['Week'],
-                            "Month":_detail['Month'],
-                            "Date":_detail['Date'],
-                            "Time":_detail['Time'],
+                            "Date":match_article['date'],
                             "Year":_detail['Year'],
                       
                             "Link":match_article['link'],
-                      
+							
                             "Push":article_push[0],
                             "Re":article_push[1],
                             "Fuck":article_push[2],
@@ -112,20 +99,19 @@ def mul_ptt(tid,keyword,lock):
                  except TypeError as e:
                       pass
                         
-           elif num==0:
+           elif num==end_num:
                 print("Thread %d done"%tid)
                 break
        
 
 
-tnum = int(sys.argv[2])
-kword = sys.argv[1]
-
+tnum = int(sys.argv[1])
+e_num = int(sys.argv[4])
 
 if tnum is 0:
    tnum = 100 #defult thread_num
 
 
 for i in range(tnum):
-    t = Thread(target=mul_ptt, args=(i,kword,Lock()))
+    t = Thread(target=mul_ptt, args=(i,Lock(),e_num))
     t.start()

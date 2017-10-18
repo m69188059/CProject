@@ -18,17 +18,7 @@ def get_doc(page):
         print("TyepError, getting error link")
         return False
 
-
-def get_back(doc):
-    divs = doc.find('div','btn-group-paging').find_all('a','btn')
-    link = divs[1].get('href')
-    if link is None:
-       return '1'
-    else:
-       ptt_url = 'https://www.ptt.cc' + link
-       return ptt_url
-
-def get_articles(search_key,doc):
+def get_articles(doc):
     try:
            divs = doc.find_all('div','r-ent')
     except AttributeError as e:
@@ -41,30 +31,16 @@ def get_articles(search_key,doc):
     
     for d in divs:
            if d.find('a'):                         #article exists
-              title = d.find('a').string
+              title = d.find('a').string              
+              href = d.find('a')['href']
+              author = d.find('div','author').string
+			  date = d.find('div','date').string
               
-              if search_key != '-all':
-              
-                 try:
-                   title.find(search_key)                
-                 except AttributeError as e:
-                   return None
-                 else:
-                   if title.find(search_key) is not -1:
-                      href = d.find('a')['href']
-                      author = d.find('div','author').string
-                 
-                      articles.append({
-                          'title':title,
-                          'link':ptt+href,
-                          'author':author })
-              else:               
-                  href = d.find('a')['href']
-                  author = d.find('div','author').string
-                  articles.append({
-                     'title':title,
-                     'link':ptt+href,
-                     'author':author })
+			  articles.append({
+                'title':title,
+                'link':ptt+href,
+                'author':author,
+			    'date':date})
              
     return articles
 
@@ -138,19 +114,6 @@ def get_retext(doc):
      
     return re
        
-
-
-def get_index(doc):
-    divs = doc.find('div','btn-group-paging').find_all('a','btn')
-    link = divs[1].get('href')
-    
-    i_index = link.find('index') 
-    e_index = link.find('.html')
-
-    num = int(link[i_index+5:e_index])
-    
-    return num
-
 def get_detail(title,timestr):
     data = {}
 
@@ -170,19 +133,11 @@ def get_detail(title,timestr):
           pass
     try:
       data = {
-        'Week':time[0],
-        'Month':time[1],
-        'Date':time[2],
-        'Time':time[3],
         'Year':time[4],
         'Isre':isRe,
         'Kind':kind}
     except IndexError as e:
       data = {
-        'Week':"Error",
-        'Month':"Error",
-        'Date':"Error",
-        'Time':"Error",
         'Year':"Error",
         'Isre':isRe,
         'Kind':kind}

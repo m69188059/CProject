@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>結果</title>
+    <!--<script src="http://mbostock.github.com/d3/d3.v2.js"></script>-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</head>
+<body>
+
+    <svg width="960" height="500"></svg>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script>
+
+        var svg = d3.select("svg"),
+            margin = { top: 20, right: 20, bottom: 30, left: 50 },
+            width = +svg.attr("width") - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        var parseTime = d3.timeParse("%Y/%m");///%d %H:%M");
+        //var formatTime = d3.timeFormat("%Y/%m/%d %H:%M");
+
+        var x = d3.scaleTime()
+            .rangeRound([0, width]);
+
+        var y0 = d3.scaleLinear()
+            .rangeRound([height, 0]);
+        var y1 = d3.scaleLinear()
+            .rangeRound([height, 0]);
+        /*var y0 = d3.scaleLinear().domain([300, 1100]).range([height, 0]),
+        y1 = d3.scaleLinear().domain([20, 80]).range([height, 0]);*/
+
+        var line_pos = d3.line()
+            .x(function (d) { return x(d.month); })
+            .y(function (d) { return y0(d.pos); });
+        var line_neu = d3.line()
+            .x(function (d) { return x(d.month); })
+            .y(function (d) { return y0(d.neu); });
+        var line_neg = d3.line()
+            .x(function (d) { return x(d.month); })
+            .y(function (d) { return y0(d.neg); });
+        $(document).ready( //#A
+            function doPoll() {
+                $.getJSON('http://104.154.114.31:8080/newsdb', //#B
+                    function (data) { //#C
+                        console.log(data);
+                        var jsondata = '[{ "month": "2017/11", "pos": 0, "neg": 0, "neu": 0 },{ "month": "2017/10", "pos": 0, "neg": 0, "neu": 0 },{ "month": "2017/09", "pos": 0, "neg": 0, "neu": 0 },{ "month": "2017/08", "pos": 0, "neg": 0, "neu": 0 }, { "month": "2017/07", "pos": 0, "neg": 0, "neu": 0},{ "month": "2017/06", "pos": 0, "neg": 0, "neu": 0 },{ "month": "2017/05", "pos": 0, "neg": 0, "neu": 0 }]';
+                        //jsondata = jsondata.toString();
+                        var monthscore = JSON.parse(jsondata);
+                        //var jsontext = '{"firstname":"Jesper","surname":"Aaberg","phone":["555-0100","555-0120"]}';
+                        //var contact = JSON.parse(jsontext);
+                        console.log(monthscore);
+                        data.forEach(function (d) {
+                            //d.time = parseTime(d.time);
+                            //d.time = formatTime(d.time);
+                            d.time= d.time.substring(0, 7);
+                            //console.log(d.time);
+                            d.mood_score = +d.mood_score;
+                            if (d.mood_score >= 17)//positive
+                            {
+                                if (d.time == monthscore[0].month)
+                                    monthscore[0].pos++;
+                                else if (d.time == monthscore[1].month)
+                                    monthscore[1].pos++;
+                                else if (d.time == monthscore[2].month)
+                                    monthscore[2].pos++;
+                                else if (d.time == monthscore[3].month)
+                                    monthscore[3].pos++;
+                                else if (d.time == monthscore[4].month)
+                                    monthscore[4].pos++;
+                                else if (d.time == monthscore[5].month)
+                                    monthscore[5].pos++;
+                                else if(d.time == monthscore[6].month)
+                                    monthscore[6].pos++;
+                            }
+                            else if (d.mood_score < 17 && d.mood_score >= 3)//neutral
+                            {
+                                if (d.time == monthscore[0].month)
+                                    monthscore[0].neu++;
+                                else if (d.time == monthscore[1].month)
+                                    monthscore[1].neu++;
+                                else if (d.time == monthscore[2].month)
+                                    monthscore[2].neu++;
+                                else if (d.time == monthscore[3].month)
+                                    monthscore[3].neu++;
+                                else if (d.time == monthscore[4].month)
+                                    monthscore[4].neu++;
+                                else if (d.time == monthscore[5].month)
+                                    monthscore[5].neu++;
+                                else if(d.time == monthscore[6].month)
+                                    monthscore[6].neu++;
+                            } else//negative
+                            {
+                                if (d.time == monthscore[0].month)
+                                    monthscore[0].neg++;
+                                else if (d.time == monthscore[1].month)
+                                    monthscore[1].neg++;
+                                else if (d.time == monthscore[2].month)
+                                    monthscore[2].neg++;
+                                else if (d.time == monthscore[3].month)
+                                    monthscore[3].neg++;
+                                else if (d.time == monthscore[4].month)
+                                    monthscore[4].neg++;
+                                else if (d.time == monthscore[5].month)
+                                    monthscore[5].neg++;
+                                else if(d.time == monthscore[6].month)
+                                    monthscore[6].neg++;
+                            }
+                            return d;
+                        });
+                        monthscore.forEach(function (m) {
+                            m.month= parseTime(m.month);
+                        });
+                        //console.log(monthscore);
+                        x.domain(d3.extent(monthscore, function (d) { return d.month; }));
+                        //y.domain(d3.extent(monthscore, function (d) { return d.pos; }));
+                        y0.domain([d3.min(monthscore, function(d) { return d.neg; }), d3.max(monthscore, function(d) { return d.pos; })]);
+                        y1.domain([d3.min(monthscore, function(d) { return d.neu; }), d3.max(monthscore, function(d) { return d.neu; })]);
+
+                        g.append("g")
+                            .attr("transform", "translate(0," + height + ")")
+                            .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%Y/%m")))
+                          .select(".domain")
+                            .remove();
+
+                        g.append("g")
+                            .call(d3.axisLeft(y0))
+                          .append("text")
+                            .attr("fill", "#000")
+                            .attr("transform", "rotate(-90)")
+                            .attr("y", 6)
+                            .attr("dy", "0.71em")
+                            .attr("text-anchor", "end")
+                            .text("number");
+
+                        g.append("path")//pos
+                            .datum(monthscore)
+                            .attr("fill", "none")
+                            .attr("stroke", "green")
+                            .attr("stroke-linejoin", "round")
+                            .attr("stroke-linecap", "round")
+                            .attr("stroke-width", 1.5)
+                            .attr("d", line_pos);
+
+                        g.append("path")//neu
+                            .datum(monthscore)
+                            .attr("fill", "none")
+                            .attr("stroke", "steelblue")
+                            .attr("stroke-linejoin", "round")
+                            .attr("stroke-linecap", "round")
+                            .attr("stroke-width", 1.5)
+                            .attr("d", line_neu);
+                        
+                        g.append("path")//neg
+                            .datum(monthscore)
+                            .attr("fill", "none")
+                            .attr("stroke", "red")
+                            .attr("stroke-linejoin", "round")
+                            .attr("stroke-linecap", "round")
+                            .attr("stroke-width", 1.5)
+                            .attr("d", line_neg);
+                    });
+            });
+    </script>
+    <div>
+        <table border="0">
+            <tr>
+                <td bgcolor="green" width="15px"></td>
+                <td>正向文章曲線</td>
+                <td bgcolor="steelblue" width="15px"></td>
+                <td>中性文章曲線</td>
+                <td bgcolor="red" width="15px"></td>
+                <td>負向文章曲線</td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>
